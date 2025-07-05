@@ -1,0 +1,18 @@
+[package]
+name = "SendMessage"
+version = "1.0.0"
+authors = []
+
+[addresses]
+contname = "0x5c3b2aa3cfa6103f67163f4025da028c866201380d56f7d37e6320a0e9c9756a"
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+# rev = "mainnet"
+rev = "testnet"
+subdir = "aptos-framework"
+
+[dev-dependencies]
+
+
