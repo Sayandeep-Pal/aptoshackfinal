@@ -2544,8 +2544,8 @@ field2: address" rows={3}/></div>
             <Badge variant="outline">{blocks.length} block{blocks.length !== 1 ? "s" : ""}</Badge>
             <Badge variant="outline">{connections.length} connection{connections.length !== 1 ? "s" : ""}</Badge>
             {isConnecting && <Badge variant="secondary" className="animate-pulse"><Link className="w-3 h-3 mr-1" />Connecting...</Badge>}
-            <Button variant="outline" size="sm" onClick={runBlocks} disabled={blocks.length === 0}><Play className="w-4 h-4 mr-2" />Run</Button>
-            <Button variant="default" size="sm" onClick={generateMoveCode}><Code className="w-4 h-4 mr-2" />Generate Code</Button>
+            {/* <Button variant="outline" size="sm" onClick={runBlocks} disabled={blocks.length === 0}><Play className="w-4 h-4 mr-2" />Run</Button> */}
+            {/* <Button variant="default" size="sm" onClick={generateMoveCode}><Code className="w-4 h-4 mr-2" />Generate Code</Button> */}
             <Button variant="outline" size="sm" onClick={triggerFileUpload}><Upload className="w-4 h-4 mr-2" />Upload</Button>
             <Button variant="default" size="sm" onClick={downloadProject}><Download className="w-4 h-4 mr-2" />Download</Button>
           </div>

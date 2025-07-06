@@ -87,18 +87,18 @@ export default function BuilderPage({ ProjectName }: { ProjectName: string }) {
               <Save className="w-4 h-4 mr-2" />
               New Project
             </Button>
-            <Button variant="outline" size="sm">
+            {/* <Button variant="outline" size="sm">
               <Save className="w-4 h-4 mr-2" />
               Save
             </Button>
             <Button variant="outline" size="sm">
               <Eye className="w-4 h-4 mr-2" />
               Preview
-            </Button>
-            <Button size="sm">
+            </Button> */}
+            {/* <Button size="sm">
               <Upload className="w-4 h-4 mr-2" />
               Deploy
-            </Button>
+            </Button> */}
             {/* <WalletSelector /> */}
           </div>
         </div>

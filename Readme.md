@@ -7,6 +7,7 @@ A full-stack project for compiling, deploying, and integrating Aptos Move smart 
 ## Table of Contents
 
 - [Project Structure](#project-structure)
+- [System Diagram](#system-diagram)
 - [Backend](#backend)
   - [Setup](#setup)
   - [API Routes](#api-routes)
@@ -14,6 +15,7 @@ A full-stack project for compiling, deploying, and integrating Aptos Move smart 
 - [Client](#client)
   - [Setup](#setup-1)
 - [Smart Contract Upload](#smart-contract-upload)
+- [Environment Variables](#environment-variables)
 - [Example Transaction](#example-transaction)
 
 ---
@@ -27,6 +29,13 @@ final-new/
   ├── contract/   # Move contract source code and package
   └── Readme.md
 ```
+
+---
+
+## System Diagram
+
+You can view the system architecture here:  
+[System Diagram (Eraser)](https://app.eraser.io/workspace/OiKbQnUCwNH10rdN77lZ?origin=share)
 
 ---
 
@@ -146,6 +155,16 @@ POST /deploy
   "output": "...",
   "log": "..."
 }
+```
+
+---
+
+## Environment Variables
+
+You must set your GROQ API key in a `.env` file for the project to function correctly:
+
+```
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ---
