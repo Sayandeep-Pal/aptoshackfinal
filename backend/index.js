@@ -1,54 +1,57 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
 // import fs from 'fs/promises';
-import fs from 'fs';
-import { exec } from 'child_process';
-import path from 'path';
+import fs from "fs";
+import { exec } from "child_process";
+import path from "path";
 
-import util from 'util';
-import YAML from 'yaml';
+import util from "util";
+import YAML from "yaml";
 const execPromise = util.promisify(exec);
 
 const app = express();
-const APTOS_DIR = '/app/aptos';
-const MOVE_FILE = path.join(APTOS_DIR, 'sources', 'project.move');
+const APTOS_DIR = "/app/aptos";
+const MOVE_FILE = path.join(APTOS_DIR, "sources", "project.move");
 
 app.use(cors());
 app.use(bodyParser.json());
 
-
 async function updateMoveTomlAddress(newAddress) {
-  const moveTomlPath = path.join(APTOS_DIR, 'Move.toml');
+  const moveTomlPath = path.join(APTOS_DIR, "Move.toml");
   if (!fs.existsSync(moveTomlPath)) {
-    throw new Error('Move.toml does not exist.');
+    throw new Error("Move.toml does not exist.");
   }
-  let content = await fs.promises.readFile(moveTomlPath, 'utf8');
+  let content = await fs.promises.readFile(moveTomlPath, "utf8");
   // Ensure address starts with 0x
-  const addressWith0x = newAddress.startsWith('0x') ? newAddress : `0x${newAddress}`;
+  const addressWith0x = newAddress.startsWith("0x")
+    ? newAddress
+    : `0x${newAddress}`;
   // Replace only the contname value under [addresses]
   content = content.replace(
     /(\[addresses\][\s\S]*?contname\s*=\s*")[^"]*(")/,
     `$1${addressWith0x}$2`
   );
-  await fs.promises.writeFile(moveTomlPath, content, 'utf8');
+  await fs.promises.writeFile(moveTomlPath, content, "utf8");
 }
 
 //write a function to update move toml project name and address name based on the move code given by the user
 async function updateMoveTomlProjectNameAndAddress(moveCode) {
-  const moveTomlPath = path.join(APTOS_DIR, 'Move.toml');
+  const moveTomlPath = path.join(APTOS_DIR, "Move.toml");
   if (!fs.existsSync(moveTomlPath)) {
-    throw new Error('Move.toml does not exist.');
+    throw new Error("Move.toml does not exist.");
   }
-  let content = await fs.promises.readFile(moveTomlPath, 'utf8');
+  let content = await fs.promises.readFile(moveTomlPath, "utf8");
 
   // Extract the module declaration, e.g., "module SendMessage::sendMessage"
-  const moduleMatch = moveCode.match(/module\s+([a-zA-Z_][a-zA-Z0-9_]*)::([a-zA-Z_][a-zA-Z0-9_]*)/);
+  const moduleMatch = moveCode.match(
+    /module\s+([a-zA-Z_][a-zA-Z0-9_]*)::([a-zA-Z_][a-zA-Z0-9_]*)/
+  );
   if (!moduleMatch) {
-    throw new Error('Move code does not contain a valid module declaration.');
+    throw new Error("Move code does not contain a valid module declaration.");
   }
   const addressName = moduleMatch[1]; // e.g., SendMessage
-  const moduleName = moduleMatch[2];  // e.g., sendMessage
+  const moduleName = moduleMatch[2]; // e.g., sendMessage
 
   // Update [package] name = "sendMessage"
   content = content.replace(
@@ -62,26 +65,24 @@ async function updateMoveTomlProjectNameAndAddress(moveCode) {
     `$1${addressName}$3`
   );
 
-  await fs.promises.writeFile(moveTomlPath, content, 'utf8');
+  await fs.promises.writeFile(moveTomlPath, content, "utf8");
 }
 // Add and init route to initialize aptos and get the address in response
 
-
-app.post('/init', async (req, res) => {
+app.post("/init", async (req, res) => {
   try {
-
     const { privateKey } = req.body; // Get privateKey from request body
     // Store in a variable for later use
-    let userPrivateKey = privateKey || '';
+    let userPrivateKey = privateKey || "";
 
     // 1. Check if aptos CLI is installed and in PATH
     try {
-      await execPromise('aptos --version');
+      await execPromise("aptos --version");
     } catch (cliErr) {
       return res.status(500).json({
         success: false,
-        step: 'aptos_cli_missing',
-        error: 'Aptos CLI is not installed or not in PATH.',
+        step: "aptos_cli_missing",
+        error: "Aptos CLI is not installed or not in PATH.",
         details: cliErr.message,
       });
     }
@@ -89,86 +90,92 @@ app.post('/init', async (req, res) => {
     if (!fs.existsSync(APTOS_DIR)) {
       return res.status(500).json({
         success: false,
-        step: 'aptos_dir_missing',
-        error: '/app/aptos directory does not exist.',
+        step: "aptos_dir_missing",
+        error: "/app/aptos directory does not exist.",
       });
     }
     // 3. Initialize Aptos CLI
 
-    exec(`yes "${userPrivateKey}" | aptos init --network testnet --assume-yes`, { cwd: APTOS_DIR }, async (err, stdout, stderr) => {
-      if (err) {
-        return res.status(500).json({
-          success: false,
-          step: 'aptos_init_failed',
-          error: 'Failed to initialize Aptos CLI.',
-          details: stderr || stdout,
-        });
-      }
-      // Parse the config.yaml to get the address
-      // ...inside exec callback in /init route...
-      try {
-        const configPath = path.join(APTOS_DIR, '.aptos', 'config.yaml');
-        if (!fs.existsSync(configPath)) {
+    exec(
+      `yes "${userPrivateKey}" | aptos init --network testnet --assume-yes`,
+      { cwd: APTOS_DIR },
+      async (err, stdout, stderr) => {
+        if (err) {
           return res.status(500).json({
             success: false,
-            step: 'config_missing',
-            error: 'Aptos config.yaml file does not exist.',
+            step: "aptos_init_failed",
+            error: "Failed to initialize Aptos CLI.",
+            details: stderr || stdout,
           });
         }
-
-        const configContent = fs.readFileSync(configPath, 'utf8');
-        const config = YAML.parse(configContent);
-        const address = config.profiles && config.profiles.default && config.profiles.default.account;
-
-        // if (!address) {
-        //   return res.status(500).json({
-        //     success: false,
-        //     step: 'address_not_found',
-        //     error: 'Account address not found in config.yaml.',
-        //   });
-        // }
-
+        // Parse the config.yaml to get the address
+        // ...inside exec callback in /init route...
         try {
-          await updateMoveTomlAddress(address);
+          const configPath = path.join(APTOS_DIR, ".aptos", "config.yaml");
+          if (!fs.existsSync(configPath)) {
+            return res.status(500).json({
+              success: false,
+              step: "config_missing",
+              error: "Aptos config.yaml file does not exist.",
+            });
+          }
+
+          const configContent = fs.readFileSync(configPath, "utf8");
+          const config = YAML.parse(configContent);
+          const address =
+            config.profiles &&
+            config.profiles.default &&
+            config.profiles.default.account;
+
+          // if (!address) {
+          //   return res.status(500).json({
+          //     success: false,
+          //     step: 'address_not_found',
+          //     error: 'Account address not found in config.yaml.',
+          //   });
+          // }
+
+          try {
+            await updateMoveTomlAddress(address);
+          } catch (e) {
+            return res.status(500).json({
+              success: false,
+              step: "move_toml_update_failed",
+              error: "Failed to update Move.toml: " + e.message,
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "Aptos CLI initialized successfully.",
+            address: address,
+          });
         } catch (e) {
           return res.status(500).json({
             success: false,
-            step: 'move_toml_update_failed',
-            error: 'Failed to update Move.toml: ' + e.message,
+            step: "unexpected_exception",
+            error: "Internal server error: " + e.message,
           });
         }
-
-        return res.status(200).json({
-          success: true,
-          message: 'Aptos CLI initialized successfully.',
-          address: address,
-        });
-      } catch (e) {
-        return res.status(500).json({
-          success: false,
-          step: 'unexpected_exception',
-          error: 'Internal server error: ' + e.message,
-        });
+        // ...existing code...
       }
-      // ...existing code...
-    });
+    );
   } catch (e) {
     return res.status(500).json({
       success: false,
-      step: 'unexpected_exception',
-      error: 'Internal server error: ' + e.message,
+      step: "unexpected_exception",
+      error: "Internal server error: " + e.message,
     });
   }
 });
 
-
 // add an endpoint to remove the .aptos folder
-app.get('/remove-aptos', async (req, res) => {
-    const dirsToRemove = [
-    '/app/aptos/.aptos',
-    '/app/.aptos',
-    '/app/aptos/.move',
-    '/app/aptos/build'
+app.get("/remove-aptos", async (req, res) => {
+  const dirsToRemove = [
+    "/app/aptos/.aptos",
+    "/app/.aptos",
+    "/app/aptos/.move",
+    "/app/aptos/build",
   ];
   let removed = [];
   let errors = [];
@@ -181,13 +188,15 @@ app.get('/remove-aptos', async (req, res) => {
         if (removed.length > 0) {
           return res.status(200).json({
             success: true,
-            message: `Removed: ${removed.join(', ')}. Some directories did not exist.`,
+            message: `Removed: ${removed.join(
+              ", "
+            )}. Some directories did not exist.`,
           });
         } else {
           return res.status(404).json({
             success: false,
-            step: 'aptos_dir_missing',
-            error: 'None of the target directories exist.',
+            step: "aptos_dir_missing",
+            error: "None of the target directories exist.",
           });
         }
       }
@@ -204,15 +213,15 @@ app.get('/remove-aptos', async (req, res) => {
         if (errors.length > 0) {
           return res.status(500).json({
             success: false,
-            step: 'remove_aptos_failed',
-            error: 'Failed to remove one or more directories.',
+            step: "remove_aptos_failed",
+            error: "Failed to remove one or more directories.",
             details: errors,
             removed,
           });
         } else {
           return res.status(200).json({
             success: true,
-            message: `Removed: ${removed.join(', ')}`,
+            message: `Removed: ${removed.join(", ")}`,
           });
         }
       }
@@ -220,11 +229,11 @@ app.get('/remove-aptos', async (req, res) => {
   });
 });
 
-app.post('/compile', async (req, res) => {
+app.post("/compile", async (req, res) => {
   const { moveCode } = req.body;
 
   if (!moveCode) {
-    return res.status(400).json({ error: 'No Move code provided.' });
+    return res.status(400).json({ error: "No Move code provided." });
   }
 
   //call function to update Move.toml project name and addressname
@@ -233,20 +242,20 @@ app.post('/compile', async (req, res) => {
   } catch (e) {
     return res.status(500).json({
       success: false,
-      step: 'move_toml_update_failed',
-      error: 'Failed to update Move.toml: ' + e.message,
+      step: "move_toml_update_failed",
+      error: "Failed to update Move.toml: " + e.message,
     });
   }
 
   try {
     // 1. Check if aptos CLI is installed and in PATH
     try {
-      await execPromise('aptos --version');
+      await execPromise("aptos --version");
     } catch (cliErr) {
       return res.status(500).json({
         success: false,
-        step: 'aptos_cli_missing',
-        error: 'Aptos CLI is not installed or not in PATH.',
+        step: "aptos_cli_missing",
+        error: "Aptos CLI is not installed or not in PATH.",
         details: cliErr.message,
       });
     }
@@ -255,19 +264,19 @@ app.post('/compile', async (req, res) => {
     if (!fs.existsSync(APTOS_DIR)) {
       return res.status(500).json({
         success: false,
-        step: 'aptos_dir_missing',
-        error: '/app/aptos directory does not exist.',
+        step: "aptos_dir_missing",
+        error: "/app/aptos directory does not exist.",
       });
     }
 
     // 3. Check if move.toml and sources/ exist
-    const moveToml = path.join(APTOS_DIR, 'Move.toml');
-    const sourcesDir = path.join(APTOS_DIR, 'sources');
+    const moveToml = path.join(APTOS_DIR, "Move.toml");
+    const sourcesDir = path.join(APTOS_DIR, "sources");
     if (!fs.existsSync(moveToml) || !fs.existsSync(sourcesDir)) {
       return res.status(500).json({
         success: false,
-        step: 'Move_package_invalid',
-        error: 'Move.toml or sources/ directory is missing in /app/aptos.',
+        step: "Move_package_invalid",
+        error: "Move.toml or sources/ directory is missing in /app/aptos.",
       });
     }
 
@@ -277,8 +286,8 @@ app.post('/compile', async (req, res) => {
     } catch (permErr) {
       return res.status(500).json({
         success: false,
-        step: 'permission_error',
-        error: 'No write permission to /app/aptos/sources.',
+        step: "permission_error",
+        error: "No write permission to /app/aptos/sources.",
         details: permErr.message,
       });
     }
@@ -286,41 +295,41 @@ app.post('/compile', async (req, res) => {
     // Save user code
     await fs.promises.writeFile(MOVE_FILE, moveCode);
 
-
-
     // Compile Move code using Aptos CLI
-    exec(`aptos move compile --package-dir ${APTOS_DIR}`, (err, stdout, stderr) => {
-      if (err) {
-        return res.status(200).json({
-          success: false,
-          step: 'exec_error',
-          error: err.message,
-          log: stdout + (stderr ? '\n' + stderr : ''),
+    exec(
+      `aptos move compile --package-dir ${APTOS_DIR}`,
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.status(200).json({
+            success: false,
+            step: "exec_error",
+            error: err.message,
+            log: stdout + (stderr ? "\n" + stderr : ""),
+          });
+        }
+        // Compilation succeeded, but there may be messages in stderr (like progress info)
+        res.status(200).json({
+          success: true,
+          output: stdout,
+          log: stdout + (stderr ? "\n" + stderr : ""),
         });
       }
-      // Compilation succeeded, but there may be messages in stderr (like progress info)
-      res.status(200).json({
-        success: true,
-        output: stdout,
-        log: stdout + (stderr ? '\n' + stderr : ''),
-      });
-    });
+    );
   } catch (e) {
     res.status(500).json({
       success: false,
-      step: 'unexpected_exception',
-      error: 'Internal server error: ' + e.message,
+      step: "unexpected_exception",
+      error: "Internal server error: " + e.message,
     });
   }
 });
 
-app.post('/deploy', async (req, res) => {
+app.post("/deploy", async (req, res) => {
   const { moveCode } = req.body;
 
   if (!moveCode) {
-    return res.status(400).json({ error: 'No Move code provided.' });
+    return res.status(400).json({ error: "No Move code provided." });
   }
-
 
   //call function to update Move.toml project name and addressname
   try {
@@ -328,21 +337,20 @@ app.post('/deploy', async (req, res) => {
   } catch (e) {
     return res.status(500).json({
       success: false,
-      step: 'move_toml_update_failed',
-      error: 'Failed to update Move.toml: ' + e.message,
+      step: "move_toml_update_failed",
+      error: "Failed to update Move.toml: " + e.message,
     });
   }
-
 
   try {
     // 1. Check if aptos CLI is installed and in PATH
     try {
-      await execPromise('aptos --version');
+      await execPromise("aptos --version");
     } catch (cliErr) {
       return res.status(500).json({
         success: false,
-        step: 'aptos_cli_missing',
-        error: 'Aptos CLI is not installed or not in PATH.',
+        step: "aptos_cli_missing",
+        error: "Aptos CLI is not installed or not in PATH.",
         details: cliErr.message,
       });
     }
@@ -351,19 +359,19 @@ app.post('/deploy', async (req, res) => {
     if (!fs.existsSync(APTOS_DIR)) {
       return res.status(500).json({
         success: false,
-        step: 'aptos_dir_missing',
-        error: '/app/aptos directory does not exist.',
+        step: "aptos_dir_missing",
+        error: "/app/aptos directory does not exist.",
       });
     }
 
     // 3. Check if move.toml and sources/ exist
-    const moveToml = path.join(APTOS_DIR, 'Move.toml');
-    const sourcesDir = path.join(APTOS_DIR, 'sources');
+    const moveToml = path.join(APTOS_DIR, "Move.toml");
+    const sourcesDir = path.join(APTOS_DIR, "sources");
     if (!fs.existsSync(moveToml) || !fs.existsSync(sourcesDir)) {
       return res.status(500).json({
         success: false,
-        step: 'Move_package_invalid',
-        error: 'Move.toml or sources/ directory is missing in /app/aptos.',
+        step: "Move_package_invalid",
+        error: "Move.toml or sources/ directory is missing in /app/aptos.",
       });
     }
 
@@ -373,8 +381,8 @@ app.post('/deploy', async (req, res) => {
     } catch (permErr) {
       return res.status(500).json({
         success: false,
-        step: 'permission_error',
-        error: 'No write permission to /app/aptos/sources.',
+        step: "permission_error",
+        error: "No write permission to /app/aptos/sources.",
         details: permErr.message,
       });
     }
@@ -382,31 +390,27 @@ app.post('/deploy', async (req, res) => {
     // Save user code
     await fs.promises.writeFile(MOVE_FILE, moveCode);
 
-
-
-    console.log('Deploy working directory:', process.cwd());
-    console.log('Deploy HOME env:', process.env.HOME);
-
+    console.log("Deploy working directory:", process.cwd());
+    console.log("Deploy HOME env:", process.env.HOME);
 
     // Copy .aptos folder from /app/aptos/.aptos to /app/.aptos if it doesn't exist
-    const srcAptosDir = path.join(APTOS_DIR, '.aptos');
-    const destAptosDir = '/app/.aptos';
+    const srcAptosDir = path.join(APTOS_DIR, ".aptos");
+    const destAptosDir = "/app/.aptos";
     if (!fs.existsSync(destAptosDir)) {
       // Use shell command to copy recursively
       try {
         await execPromise(`cp -r ${srcAptosDir} ${destAptosDir}`);
-        console.log('.aptos folder copied to /app/');
+        console.log(".aptos folder copied to /app/");
       } catch (copyErr) {
-        console.error('Failed to copy .aptos folder:', copyErr);
+        console.error("Failed to copy .aptos folder:", copyErr);
         return res.status(500).json({
           success: false,
-          step: 'copy_dot_aptos_failed',
-          error: 'Failed to copy .aptos folder to /app/',
+          step: "copy_dot_aptos_failed",
+          error: "Failed to copy .aptos folder to /app/",
           details: copyErr.message,
         });
       }
     }
-
 
     // Deploy Move code using Aptos CLI
     exec(
@@ -414,37 +418,161 @@ app.post('/deploy', async (req, res) => {
       { env: { ...process.env, HOME: APTOS_DIR } }, // <--- set HOME to /app/aptos
       (err, stdout, stderr) => {
         if (err) {
-          console.error('Deploy command error:', err);
-          console.error('Deploy stdout:', stdout);
-          console.error('Deploy stderr:', stderr);
+          console.error("Deploy command error:", err);
+          console.error("Deploy stdout:", stdout);
+          console.error("Deploy stderr:", stderr);
           return res.status(200).json({
             success: false,
-            step: 'exec_error',
+            step: "exec_error",
             error: err.message,
-            log: stdout + (stderr ? '\n' + stderr : ''),
+            log: stdout + (stderr ? "\n" + stderr : ""),
           });
         }
         res.status(200).json({
           success: true,
           output: stdout,
-          log: stdout + (stderr ? '\n' + stderr : ''),
+          log: stdout + (stderr ? "\n" + stderr : ""),
         });
       }
     );
   } catch (e) {
-    console.error('Unexpected exception in /deploy:', e);
+    console.error("Unexpected exception in /deploy:", e);
 
     res.status(500).json({
-
       success: false,
-      step: 'unexpected_exception',
-      error: 'Internal server error: ' + e.message,
+      step: "unexpected_exception",
+      error: "Internal server error: " + e.message,
     });
   }
 });
 
+// add a route to parse the move code and generate some import template codes and give template integration function after parsing the project.move file and fetching the address, contract name and the function names step by step
+// make an array and store the complete strings in the indexes so that i can render them directly by accessing the array as it will return it and render it
+app.get("/integration-functions", async (req, res) => {
+  try {
+    const integrationFunctions = [];
+    integrationFunctions[0] = ` import {Aptos, AptosConfig, Network} from "@aptos-labs/ts-sdk"
+ import {useWallet, InputSubmitTransactionData, InputTransactionData} from "@aptos-labs/wallet-adapter-react"
 
+ const {account, signAndSubmitTransaction} = useWallet();
+ const aptos = new Aptos(config);`;
 
-app.listen(3000, () => {
-  console.log('Aptos Move backend is running at http://localhost:3000');
+    const configPath = path.join(APTOS_DIR, ".aptos", "config.yaml");
+    if (!fs.existsSync(configPath)) {
+      return res.status(500).json({
+        success: false,
+        step: "config_missing",
+        error: "Aptos config.yaml file does not exist.",
+      });
+    }
+    const configContent = fs.readFileSync(configPath, "utf8");
+    const config = YAML.parse(configContent);
+    const address =
+      config.profiles &&
+      config.profiles.default &&
+      config.profiles.default.account;
+    if (!address) {
+      return res.status(500).json({
+        success: false,
+        step: "address_not_found",
+        error: "Account address not found in config.yaml.",
+      });
+    }
+    const addressWith0x = address.startsWith("0x") ? address : `0x${address}`;
+    integrationFunctions[1] = `const MODULE_ADDRESS = "${addressWith0x}"; // replace with your address`;
+
+    if (!fs.existsSync(MOVE_FILE)) {
+      return res.status(500).json({
+        success: false,
+        step: "move_file_missing",
+        error: "Move file does not exist.",
+      });
+    }
+    const moveCode = await fs.promises.readFile(MOVE_FILE, "utf8");
+
+    const moduleMatch = moveCode.match(
+      /module\s+([a-zA-Z_][a-zA-Z0-9_]*)::([a-zA-Z_][a-zA-Z0-9_]*)/
+    );
+    if (!moduleMatch) {
+      return res.status(500).json({
+        success: false,
+        step: "module_not_found",
+        error: "Move code does not contain a valid module declaration.",
+      });
+    }
+    const smartcontractname = moduleMatch[2];
+
+    // Updated logic for extracting function names and parameters
+    const functionNames = [];
+    const functionparam = [];
+    const functionparamval = [];
+    // Regex to match public entry fun function_name(params...)
+    const functionRegex =
+      /public\s+entry\s+fun\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)/g;
+    let match;
+    while ((match = functionRegex.exec(moveCode)) !== null) {
+      const fnName = match[1];
+      const params = match[2]
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      functionNames.push(fnName);
+
+      // Remove the signer param (account: &signer)
+      const nonSignerParams = params.filter((p) => !/:\s*&signer\b/.test(p));
+      if (nonSignerParams.length > 0) {
+        functionparamval.push(1);
+        // Extract the param name (before ':')
+        const paramName = nonSignerParams[0].split(":")[0].trim();
+        functionparam.push(paramName);
+      } else {
+        functionparamval.push(0);
+        functionparam.push("");
+      }
+    }
+    if (functionNames.length === 0) {
+      return res.status(500).json({
+        success: false,
+        step: "no_functions_found",
+        error: "No functions found in the Move code.",
+      });
+    }
+
+    // Generate integration functions
+    functionNames.forEach((fn, idx) => {
+      const param = functionparam[idx];
+      integrationFunctions.push(
+        [
+          `# Integration function: ${fn}`,
+          `const transaction: InputTransactionData = {`,
+          `  data: {`,
+          `    function: \`${addressWith0x}::${smartcontractname}::${fn}\`,`,
+          `    functionArguments: [${param ? param : ""}]`,
+          `  }`,
+          `};`,
+          `const response = await signAndSubmitTransaction(transaction);`,
+          `await aptos.waitForTransaction({transactionHash: response.hash});`,
+        ].join("\n")
+      );
+    });
+
+    res.status(200).json({
+      success: true,
+      integrationFunctions,
+      functionNames,
+      functionparam,
+      functionparamval,
+    });
+  } catch (e) {
+    console.error("Error in /integration-functions:", e);
+    res.status(500).json({
+      success: false,
+      step: "unexpected_exception",
+      error: "Internal server error: " + e.message,
+    });
+  }
+});
+
+app.listen(4000, () => {
+  console.log("Aptos Move backend is running at http://localhost:4000");
 });

@@ -13,6 +13,4 @@ git = "https://github.com/aptos-labs/aptos-framework.git"
 rev = "testnet"
 subdir = "aptos-framework"
 
-[dev-dependencies]
-
-
+[dev-dependencies]  
