@@ -1,0 +1,327 @@
+{
+  "ProjectName": "Aptos Vault",
+  "blocks": [
+    {
+      "id": "module",
+      "name": "Module",
+      "description": "Define a Move module",
+      "icon": {},
+      "type": "structure",
+      "template": "module {{name}}::{{module_name}} { ... }",
+      "instanceId": "block_module_1",
+      "position": { "x": 350, "y": 20 },
+      "parameters": { "name": "Vault", "module_name": "vault" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_signer_2",
+      "position": { "x": 20, "y": 20 },
+      "parameters": { "path": "std::signer" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_coin_3",
+      "position": { "x": 20, "y": 120 },
+      "parameters": { "path": "aptos_framework::coin::{Self, Coin}" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_aptoscoin_4",
+      "position": { "x": 20, "y": 220 },
+      "parameters": { "path": "aptos_framework::aptos_coin::AptosCoin" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_aptosaccount_5",
+      "position": { "x": 20, "y": 320 },
+      "parameters": { "path": "aptos_framework::aptos_account" }
+    },
+    {
+      "id": "constant",
+      "name": "Constant",
+      "description": "Define a constant",
+      "icon": {},
+      "type": "variable",
+      "template": "const {{name}}: {{type}} = {{value}};",
+      "instanceId": "block_const_error_6",
+      "position": { "x": 20, "y": 420 },
+      "parameters": {
+        "name": "E_INSUFFICIENT_BALANCE",
+        "type": "u64",
+        "value": "1"
+      }
+    },
+    {
+      "id": "struct",
+      "name": "Struct",
+      "description": "Define a data structure with abilities",
+      "icon": {},
+      "type": "structure",
+      "template": "struct {{name}} has {{abilities}} { ... }",
+      "instanceId": "block_struct_vault_7",
+      "position": { "x": 20, "y": 520 },
+      "parameters": {
+        "name": "Vault",
+        "abilities": "key",
+        "fields": "balance: Coin<AptosCoin>"
+      }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_deposit_8",
+      "position": { "x": 350, "y": 140 },
+      "parameters": {
+        "name": "deposit",
+        "params": "account: &signer, amount: u64",
+        "acquires": "Vault"
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_depositcoins_9",
+      "position": { "x": 350, "y": 290 },
+      "parameters": {
+        "name": "coins_to_deposit",
+        "value": "coin::withdraw<AptosCoin>(account, amount)"
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_signeraddr_10",
+      "position": { "x": 350, "y": 420 },
+      "parameters": {
+        "name": "signer_addr",
+        "value": "signer::address_of(account)"
+      }
+    },
+    {
+      "id": "if-else",
+      "name": "If-Else",
+      "description": "Conditional with alternative",
+      "icon": {},
+      "type": "logic",
+      "template": "if ({{condition}}) { ... } else { ... }",
+      "instanceId": "block_if_exists_11",
+      "position": { "x": 350, "y": 550 },
+      "parameters": { "condition": "!exists<Vault>(signer_addr)" }
+    },
+    {
+      "id": "move-to",
+      "name": "Move To",
+      "description": "Store a resource under an account",
+      "icon": {},
+      "type": "blockchain",
+      "template": "move_to({{signer_ref}}, {{resource_variable}})",
+      "instanceId": "block_moveto_12",
+      "position": { "x": 220, "y": 700 },
+      "parameters": {
+        "signer": "account",
+        "resource_variable": "Vault { balance: coins_to_deposit }"
+      }
+    },
+    {
+      "id": "borrow-global-mut",
+      "name": "Borrow Global (Mutable)",
+      "description": "Get a mutable reference to a resource",
+      "icon": {},
+      "type": "blockchain",
+      "template": "borrow_global_mut<{{ResourceType}}>({{address}})",
+      "instanceId": "block_borrow_vault_13",
+      "position": { "x": 500, "y": 700 },
+      "parameters": {
+        "assign_to": "vault",
+        "resource_type": "Vault",
+        "address": "signer_addr"
+      }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "function",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_merge_14",
+      "position": { "x": 500, "y": 830 },
+      "parameters": {
+        "function_name": "coin::merge",
+        "args": "&mut vault.balance, coins_to_deposit"
+      }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_withdraw_15",
+      "position": { "x": 750, "y": 140 },
+      "parameters": {
+        "name": "withdraw",
+        "params": "account: &signer, amount: u64",
+        "acquires": "Vault"
+      }
+    },
+    {
+      "id": "borrow-global-mut",
+      "name": "Borrow Global (Mutable)",
+      "description": "Get a mutable reference to a resource",
+      "icon": {},
+      "type": "blockchain",
+      "template": "borrow_global_mut<{{ResourceType}}>({{address}})",
+      "instanceId": "block_borrow_vault_withdraw_16",
+      "position": { "x": 750, "y": 290 },
+      "parameters": {
+        "assign_to": "vault",
+        "resource_type": "Vault",
+        "address": "signer::address_of(account)"
+      }
+    },
+    {
+      "id": "assert",
+      "name": "Assert",
+      "description": "Assert a condition is true, otherwise abort",
+      "icon": {},
+      "type": "debug",
+      "template": "assert!({{condition}}, {{error_code}});",
+      "instanceId": "block_assert_balance_17",
+      "position": { "x": 750, "y": 420 },
+      "parameters": {
+        "condition": "coin::value(&vault.balance) >= amount",
+        "error_code": "E_INSUFFICIENT_BALANCE"
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_withdrawn_18",
+      "position": { "x": 750, "y": 550 },
+      "parameters": {
+        "name": "withdrawn_coins",
+        "value": "coin::extract(&mut vault.balance, amount)"
+      }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "function",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_depositcoins_19",
+      "position": { "x": 750, "y": 680 },
+      "parameters": {
+        "function_name": "aptos_account::deposit_coins",
+        "args": "signer::address_of(account), withdrawn_coins"
+      }
+    },
+    {
+      "id": "public-function",
+      "name": "Public Function",
+      "description": "Create a public function",
+      "icon": {},
+      "type": "function",
+      "template": "public fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_balanceof_20",
+      "position": { "x": 1100, "y": 140 },
+      "parameters": {
+        "name": "balance_of",
+        "params": "owner: address",
+        "acquires": "Vault",
+        "annotation": "#[view]",
+        "return_type": "u64"
+      }
+    },
+    {
+      "id": "if-else",
+      "name": "If-Else",
+      "description": "Conditional with alternative",
+      "icon": {},
+      "type": "logic",
+      "template": "if ({{condition}}) { ... } else { ... }",
+      "instanceId": "block_if_exists_balance_21",
+      "position": { "x": 1100, "y": 290 },
+      "parameters": { "condition": "!exists<Vault>(owner)" }
+    },
+    {
+      "id": "assign",
+      "name": "Assign",
+      "description": "Variable assignment",
+      "icon": {},
+      "type": "operation",
+      "template": "{{variable}} = {{value}};",
+      "instanceId": "block_return_zero_22",
+      "position": { "x": 980, "y": 440 },
+      "parameters": { "variable": "return", "value": "0" }
+    },
+    {
+      "id": "assign",
+      "name": "Assign",
+      "description": "Variable assignment",
+      "icon": {},
+      "type": "operation",
+      "template": "{{variable}} = {{value}};",
+      "instanceId": "block_return_balance_23",
+      "position": { "x": 1220, "y": 440 },
+      "parameters": {
+        "variable": "return",
+        "value": "coin::value(&borrow_global<Vault>(owner).balance)"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "block_func_deposit_8", "to": "block_let_depositcoins_9" },
+    { "from": "block_let_depositcoins_9", "to": "block_let_signeraddr_10" },
+    { "from": "block_let_signeraddr_10", "to": "block_if_exists_11" },
+    { "from": "block_if_exists_11", "to": "block_moveto_12" },
+    { "from": "block_if_exists_11", "to": "block_borrow_vault_13" },
+    { "from": "block_borrow_vault_13", "to": "block_call_merge_14" },
+    { "from": "block_func_withdraw_15", "to": "block_borrow_vault_withdraw_16" },
+    { "from": "block_borrow_vault_withdraw_16", "to": "block_assert_balance_17" },
+    { "from": "block_assert_balance_17", "to": "block_let_withdrawn_18" },
+    { "from": "block_let_withdrawn_18", "to": "block_call_depositcoins_19" },
+    { "from": "block_func_balanceof_20", "to": "block_if_exists_balance_21" },
+    { "from": "block_if_exists_balance_21", "to": "block_return_zero_22" },
+    { "from": "block_if_exists_balance_21", "to": "block_return_balance_23" }
+  ]
+}

@@ -1,0 +1,264 @@
+{
+  "ProjectName": "SendMessage",
+  "blocks": [
+    {
+      "id": "module",
+      "name": "Module",
+      "description": "Define a Move module",
+      "icon": {},
+      "type": "structure",
+      "template": "module {{name}}::{{module_name}} { ... }",
+      "instanceId": "block_module_1",
+      "position": { "x": 20, "y": 20 },
+      "parameters": { "name": "SendMessage", "module_name": "sendMessage" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_string_2",
+      "position": { "x": 20, "y": 120 },
+      "parameters": { "path": "std::string::{String, utf8}" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_signer_3",
+      "position": { "x": 20, "y": 220 },
+      "parameters": { "path": "std::signer" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_account_4",
+      "position": { "x": 20, "y": 320 },
+      "parameters": { "path": "aptos_framework::account" }
+    },
+    {
+      "id": "struct",
+      "name": "Struct",
+      "description": "Define a data structure",
+      "icon": {},
+      "type": "structure",
+      "template": "struct {{name}} has key { ... }",
+      "instanceId": "block_struct_message_5",
+      "position": { "x": 20, "y": 420 },
+      "parameters": { "name": "Message", "fields": "my_message: String" }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_store_message_6",
+      "position": { "x": 300, "y": 20 },
+      "parameters": {
+        "name": "store_message",
+        "params": "account: &signer, msg: String",
+        "acquires": "Message",
+        "annotation": ""
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_signer_addr_7",
+      "position": { "x": 300, "y": 170 },
+      "parameters": {
+        "name": "signer_address",
+        "value": "signer::address_of(account)"
+      }
+    },
+    {
+      "id": "if-else",
+      "name": "If-Else",
+      "description": "Conditional with alternative",
+      "icon": {},
+      "type": "logic",
+      "template": "if ({{condition}}) { ... } else { ... }",
+      "instanceId": "block_if_else_exists_8",
+      "position": { "x": 300, "y": 320 },
+      "parameters": { "condition": "!exists<Message>(signer_address)" }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_message_new_9",
+      "position": { "x": 200, "y": 470 },
+      "parameters": {
+        "name": "message",
+        "value": "Message { my_message: msg }"
+      }
+    },
+    {
+      "id": "move-to",
+      "name": "Move To",
+      "description": "Store a resource under an account",
+      "icon": {},
+      "type": "blockchain",
+      "template": "move_to({{signer_ref}}, {{resource_variable}})",
+      "instanceId": "block_move_to_10",
+      "position": { "x": 200, "y": 620 },
+      "parameters": { "signer": "account", "resource_variable": "message" }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_message_mut_11",
+      "position": { "x": 450, "y": 470 },
+      "parameters": {
+        "name": "message",
+        "value": "borrow_global_mut<Message>(signer_address)"
+      }
+    },
+    {
+      "id": "assign",
+      "name": "Assign",
+      "description": "Variable assignment",
+      "icon": {},
+      "type": "operation",
+      "template": "{{variable}} = {{value}};",
+      "instanceId": "block_assign_message_12",
+      "position": { "x": 450, "y": 620 },
+      "parameters": { "variable": "message.my_message", "value": "msg" }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_test_store_message_13",
+      "position": { "x": 750, "y": 20 },
+      "parameters": {
+        "name": "test_store_message",
+        "params": "admin: signer",
+        "acquires": "Message",
+        "annotation": "#[test(admin = @0x1234)]"
+      }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "operation",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_create_account_14",
+      "position": { "x": 750, "y": 170 },
+      "parameters": {
+        "function_name": "account::create_account_for_test",
+        "args": "signer::address_of(&admin)"
+      }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "operation",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_store_message_1_15",
+      "position": { "x": 750, "y": 320 },
+      "parameters": {
+        "function_name": "store_message",
+        "args": "&admin, utf8(b\"Hello for the first time!\")"
+      }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "operation",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_store_message_2_16",
+      "position": { "x": 750, "y": 470 },
+      "parameters": {
+        "function_name": "store_message",
+        "args": "&admin, utf8(b\"Hello for the second time!\")"
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_message_borrow_17",
+      "position": { "x": 750, "y": 620 },
+      "parameters": {
+        "name": "message",
+        "value": "borrow_global<Message>(signer::address_of(&admin))"
+      }
+    },
+    {
+      "id": "assert",
+      "name": "Assert",
+      "description": "Assert a condition is true, otherwise abort",
+      "icon": {},
+      "type": "debug",
+      "template": "assert!({{condition}});",
+      "instanceId": "block_assert_message_value_18",
+      "position": { "x": 750, "y": 770 },
+      "parameters": {
+        "condition": "message.my_message == utf8(b\"Hello for the second time!\")"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "block_func_store_message_6", "to": "block_let_signer_addr_7" },
+    { "from": "block_let_signer_addr_7", "to": "block_if_else_exists_8" },
+    { "from": "block_if_else_exists_8", "to": "block_let_message_new_9" },
+    { "from": "block_let_message_new_9", "to": "block_move_to_10" },
+    { "from": "block_if_else_exists_8", "to": "block_let_message_mut_11" },
+    { "from": "block_let_message_mut_11", "to": "block_assign_message_12" },
+    {
+      "from": "block_func_test_store_message_13",
+      "to": "block_call_create_account_14"
+    },
+    {
+      "from": "block_call_create_account_14",
+      "to": "block_call_store_message_1_15"
+    },
+    {
+      "from": "block_call_store_message_1_15",
+      "to": "block_call_store_message_2_16"
+    },
+    {
+      "from": "block_call_store_message_2_16",
+      "to": "block_let_message_borrow_17"
+    },
+    {
+      "from": "block_let_message_borrow_17",
+      "to": "block_assert_message_value_18"
+    }
+  ]
+}

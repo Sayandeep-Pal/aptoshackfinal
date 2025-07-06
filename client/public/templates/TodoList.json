@@ -1,0 +1,374 @@
+{
+  "ProjectName": "TodoList Application",
+  "blocks": [
+    {
+      "id": "module",
+      "name": "Module",
+      "description": "Define a Move module",
+      "icon": {},
+      "type": "structure",
+      "template": "module {{name}}::{{module_name}} { ... }",
+      "instanceId": "block_module_1",
+      "position": { "x": 20, "y": 20 },
+      "parameters": { "name": "todolist_application", "module_name": "TodoList" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_account_2",
+      "position": { "x": 20, "y": 120 },
+      "parameters": { "path": "aptos_framework::account" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_signer_3",
+      "position": { "x": 20, "y": 200 },
+      "parameters": { "path": "std::signer" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_event_4",
+      "position": { "x": 20, "y": 280 },
+      "parameters": { "path": "aptos_framework::event" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_string_5",
+      "position": { "x": 20, "y": 360 },
+      "parameters": { "path": "std::string::String" }
+    },
+    {
+      "id": "use-statement",
+      "name": "Use Statement",
+      "description": "Import modules and members",
+      "icon": {},
+      "type": "structure",
+      "template": "use {{path}};",
+      "instanceId": "block_use_table_6",
+      "position": { "x": 20, "y": 440 },
+      "parameters": { "path": "aptos_std::table::{Self, Table}" }
+    },
+    {
+      "id": "struct",
+      "name": "Struct",
+      "description": "Define a data structure",
+      "icon": {},
+      "type": "structure",
+      "template": "struct {{name}} has key { ... }",
+      "instanceId": "block_struct_todolist_7",
+      "position": { "x": 20, "y": 540 },
+      "parameters": {
+        "name": "TodoList",
+        "fields": "tasks: Table<u64, Task>,\nset_task_event: event::EventHandle<Task>,\ntask_counter: u64"
+      }
+    },
+    {
+      "id": "struct",
+      "name": "Struct",
+      "description": "Define a data structure",
+      "icon": {},
+      "type": "structure",
+      "template": "struct {{name}} has key { ... }",
+      "instanceId": "block_struct_task_8",
+      "position": { "x": 20, "y": 700 },
+      "parameters": {
+        "name": "Task",
+        "fields": "task_id: u64,\naddress: address,\ncontent: String,\ncompleted: bool"
+      }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_creating_list_9",
+      "position": { "x": 320, "y": 20 },
+      "parameters": {
+        "name": "creating_a_list",
+        "params": "account: &signer",
+        "acquires": "",
+        "annotation": ""
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_todolist_10",
+      "position": { "x": 320, "y": 170 },
+      "parameters": {
+        "name": "todolist",
+        "value": "TodoList{ tasks: table::new(), set_task_event: account::new_event_handle<Task>(account), task_counter: 0 }"
+      }
+    },
+    {
+      "id": "move-to",
+      "name": "Move To",
+      "description": "Store a resource under an account",
+      "icon": {},
+      "type": "blockchain",
+      "template": "move_to({{signer_ref}}, {{resource_variable}})",
+      "instanceId": "block_move_to_todolist_11",
+      "position": { "x": 320, "y": 320 },
+      "parameters": { "signer": "account", "resource_variable": "todolist" }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_create_task_12",
+      "position": { "x": 620, "y": 20 },
+      "parameters": {
+        "name": "create_a_task",
+        "params": "account: &signer, content: String",
+        "acquires": "TodoList",
+        "annotation": ""
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_signer_addr_13",
+      "position": { "x": 620, "y": 170 },
+      "parameters": { "name": "signer_address", "value": "signer::address_of(account)" }
+    },
+    {
+      "id": "assert",
+      "name": "Assert",
+      "description": "Assert a condition is true, otherwise abort",
+      "icon": {},
+      "type": "debug",
+      "template": "assert!({{condition}});",
+      "instanceId": "block_assert_exists_14",
+      "position": { "x": 620, "y": 290 },
+      "parameters": { "condition": "exists<TodoList>(signer_address)" }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_borrow_todolist_15",
+      "position": { "x": 620, "y": 410 },
+      "parameters": {
+        "name": "todo_list",
+        "value": "borrow_global_mut<TodoList>(signer_address)"
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_counter_16",
+      "position": { "x": 620, "y": 530 },
+      "parameters": { "name": "counter", "value": "todo_list.task_counter + 1" }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_new_task_17",
+      "position": { "x": 620, "y": 650 },
+      "parameters": {
+        "name": "new_task",
+        "value": "Task{ task_id: counter, address: signer_address, content, completed: false }"
+      }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "function",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_upsert_18",
+      "position": { "x": 620, "y": 770 },
+      "parameters": {
+        "function_name": "table::upsert",
+        "args": "&mut todo_list.tasks, counter, new_task"
+      }
+    },
+    {
+      "id": "assign",
+      "name": "Assign",
+      "description": "Variable assignment",
+      "icon": {},
+      "type": "operation",
+      "template": "{{variable}} = {{value}};",
+      "instanceId": "block_assign_counter_19",
+      "position": { "x": 620, "y": 890 },
+      "parameters": { "variable": "todo_list.task_counter", "value": "counter" }
+    },
+    {
+      "id": "function-call",
+      "name": "Function Call",
+      "description": "Call a function",
+      "icon": {},
+      "type": "function",
+      "template": "{{function_name}}({{args}})",
+      "instanceId": "block_call_emit_event_20",
+      "position": { "x": 620, "y": 1010 },
+      "parameters": {
+        "function_name": "event::emit_event<Task>",
+        "args": "&mut borrow_global_mut<TodoList>(signer_address).set_task_event, new_task"
+      }
+    },
+    {
+      "id": "entry-function",
+      "name": "Entry Function",
+      "description": "Create an entry function",
+      "icon": {},
+      "type": "function",
+      "template": "public entry fun {{name}}({{params}}) { ... }",
+      "instanceId": "block_func_complete_task_21",
+      "position": { "x": 920, "y": 20 },
+      "parameters": {
+        "name": "completed_a_task",
+        "params": "account: &signer, task_id: u64",
+        "acquires": "TodoList",
+        "annotation": ""
+      }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_signer_addr_22",
+      "position": { "x": 920, "y": 170 },
+      "parameters": { "name": "signer_address", "value": "signer::address_of(account)" }
+    },
+    {
+      "id": "assert",
+      "name": "Assert",
+      "description": "Assert a condition is true, otherwise abort",
+      "icon": {},
+      "type": "debug",
+      "template": "assert!({{condition}});",
+      "instanceId": "block_assert_exists_23",
+      "position": { "x": 920, "y": 290 },
+      "parameters": { "condition": "exists<TodoList>(signer_address)" }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_borrow_todolist_24",
+      "position": { "x": 920, "y": 410 },
+      "parameters": {
+        "name": "todo_list",
+        "value": "borrow_global_mut<TodoList>(signer_address)"
+      }
+    },
+    {
+      "id": "assert",
+      "name": "Assert",
+      "description": "Assert a condition is true, otherwise abort",
+      "icon": {},
+      "type": "debug",
+      "template": "assert!({{condition}});",
+      "instanceId": "block_assert_contains_25",
+      "position": { "x": 920, "y": 530 },
+      "parameters": { "condition": "table::contains(&todo_list.tasks, task_id)" }
+    },
+    {
+      "id": "let-variable",
+      "name": "Let Variable",
+      "description": "Declare a variable",
+      "icon": {},
+      "type": "variable",
+      "template": "let {{name}} = {{value}};",
+      "instanceId": "block_let_table_task_26",
+      "position": { "x": 920, "y": 650 },
+      "parameters": {
+        "name": "table_task",
+        "value": "table::borrow_mut(&mut todo_list.tasks, task_id)"
+      }
+    },
+    {
+      "id": "assert",
+      "name": "Assert",
+      "description": "Assert a condition is true, otherwise abort",
+      "icon": {},
+      "type": "debug",
+      "template": "assert!({{condition}});",
+      "instanceId": "block_assert_not_completed_27",
+      "position": { "x": 920, "y": 770 },
+      "parameters": { "condition": "table_task.completed == false" }
+    },
+    {
+      "id": "assign",
+      "name": "Assign",
+      "description": "Variable assignment",
+      "icon": {},
+      "type": "operation",
+      "template": "{{variable}} = {{value}};",
+      "instanceId": "block_assign_completed_28",
+      "position": { "x": 920, "y": 890 },
+      "parameters": { "variable": "table_task.completed", "value": "true" }
+    }
+  ],
+  "connections": [
+    { "from": "block_func_creating_list_9", "to": "block_let_todolist_10" },
+    { "from": "block_let_todolist_10", "to": "block_move_to_todolist_11" },
+    { "from": "block_func_create_task_12", "to": "block_let_signer_addr_13" },
+    { "from": "block_let_signer_addr_13", "to": "block_assert_exists_14" },
+    { "from": "block_assert_exists_14", "to": "block_borrow_todolist_15" },
+    { "from": "block_borrow_todolist_15", "to": "block_let_counter_16" },
+    { "from": "block_let_counter_16", "to": "block_let_new_task_17" },
+    { "from": "block_let_new_task_17", "to": "block_call_upsert_18" },
+    { "from": "block_call_upsert_18", "to": "block_assign_counter_19" },
+    { "from": "block_assign_counter_19", "to": "block_call_emit_event_20" },
+    { "from": "block_func_complete_task_21", "to": "block_let_signer_addr_22" },
+    { "from": "block_let_signer_addr_22", "to": "block_assert_exists_23" },
+    { "from": "block_assert_exists_23", "to": "block_borrow_todolist_24" },
+    { "from": "block_borrow_todolist_24", "to": "block_assert_contains_25" },
+    { "from": "block_assert_contains_25", "to": "block_let_table_task_26" },
+    { "from": "block_let_table_task_26", "to": "block_assert_not_completed_27" },
+    { "from": "block_assert_not_completed_27", "to": "block_assign_completed_28" }
+  ]
+}
