@@ -4,7 +4,7 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-validator = "0x7920edec8c18ce2c86ab09adf605883e49025410349a5ae108b2f5e09a00c61e"
+validator = "0x5c3b2aa3cfa6103f67163f4025da028c866201380d56f7d37e6320a0e9c9756a"
 [dev-addresses]
 
 [dependencies.AptosFramework]

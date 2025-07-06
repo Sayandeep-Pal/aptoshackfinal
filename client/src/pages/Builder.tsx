@@ -58,7 +58,7 @@ export default function BuilderPage({ ProjectName }: { ProjectName: string }) {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Code className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold">AptosBuilder</span>
+              <span className="text-xl font-bold">Zero Move</span>
             </div>
             <Separator orientation="vertical" className="h-6" />
 
