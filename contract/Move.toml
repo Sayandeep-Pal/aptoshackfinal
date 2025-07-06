@@ -4,7 +4,6 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-# SendMessage = "0x43b049c72958e5b9521c386d75d5decfc3599fe29e01485fee92af0f0df55c82"
 validator = "0x7920edec8c18ce2c86ab09adf605883e49025410349a5ae108b2f5e09a00c61e"
 [dev-addresses]
 
