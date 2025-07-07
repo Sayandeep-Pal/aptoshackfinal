@@ -1,3 +1,10 @@
+## License
+
+This project is proprietary and no part of this codebase may be copied, modified, or distributed without the author's explicit permission.
+
+© 2025 [Sayandeep Pal](https://github.com/Sayandeep-Pal) and [Suryashish Kundu](https://github.com/Suryashish) . All rights reserved.
+
+
 # RiseIn-Aptos Move Playground
 
 A full-stack project for compiling, deploying, and integrating Aptos Move smart contracts with a React frontend and an Express backend.
@@ -189,3 +196,5 @@ https://explorer.aptoslabs.com/txn/0x0b10b3b3a37dadc2f3d538728dd37f39cc45faf0596
   }
 }
 ```
+
+
